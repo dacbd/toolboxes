@@ -1,0 +1,37 @@
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+dir := justfile_directory()
+image := env_var_or_default("IMAGE", "debug")
+tag := env_var_or_default("TAG", "local")
+platforms := env_var_or_default("PLATFORMS", "linux/amd64,linux/arm64")
+oci_archive := env_var_or_default("OCI_ARCHIVE", dir + "/../dist/debug.tar")
+ghcr_image := env_var_or_default("GHCR_IMAGE", "ghcr.io/dacbd/toolboxes/debug")
+push_tag := env_var_or_default("PUSH_TAG", "latest")
+
+default:
+    @just --justfile "{{dir}}/justfile" --list
+
+# Build a local image for the current host architecture.
+build-local:
+    docker build -t "{{image}}:{{tag}}" -f "{{dir}}/Dockerfile" "{{dir}}"
+
+# Build a multi-platform OCI image archive for amd64 and arm64.
+build:
+    mkdir -p "$(dirname "{{oci_archive}}")"
+    docker buildx build --platform "{{platforms}}" -t "{{image}}:{{tag}}" -f "{{dir}}/Dockerfile" --provenance=false --output "type=oci,dest={{oci_archive}}" "{{dir}}"
+
+# Validate the multi-platform Dockerfile and GHCR image reference without pushing.
+check:
+    docker buildx build --check --platform "{{platforms}}" -t "{{ghcr_image}}:{{push_tag}}" -f "{{dir}}/Dockerfile" "{{dir}}"
+
+# Push a multi-platform image to GHCR for this repository.
+push:
+    docker buildx build --platform "{{platforms}}" -t "{{ghcr_image}}:{{push_tag}}" -f "{{dir}}/Dockerfile" --provenance=false --push "{{dir}}"
+
+# Build and load a single-platform amd64 image into the local Docker image store.
+build-amd64:
+    docker buildx build --platform linux/amd64 -t "{{image}}:{{tag}}-amd64" -f "{{dir}}/Dockerfile" --provenance=false --load "{{dir}}"
+
+# Build and load a single-platform arm64 image into the local Docker image store.
+build-arm64:
+    docker buildx build --platform linux/arm64 -t "{{image}}:{{tag}}-arm64" -f "{{dir}}/Dockerfile" --provenance=false --load "{{dir}}"
