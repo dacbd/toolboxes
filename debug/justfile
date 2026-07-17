@@ -11,6 +11,9 @@ push_tag := env_var_or_default("PUSH_TAG", "latest")
 default:
     @just --justfile "{{dir}}/justfile" --list
 
+local: build-local
+    docker run --rm -it "{{image}}:{{tag}}"
+
 # Build a local image for the current host architecture.
 build-local:
     docker build -t "{{image}}:{{tag}}" -f "{{dir}}/Dockerfile" "{{dir}}"
