@@ -24,6 +24,7 @@ RUN apt-get update \
         netcat-openbsd \
         openssl \
         procps \
+        ripgrep \
         tcpdump \
         traceroute \
     && rm -rf /var/lib/apt/lists/*
