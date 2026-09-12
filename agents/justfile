@@ -15,9 +15,9 @@ default:
 build-local:
     docker build -t "{{image}}:{{tag}}" -f "{{dir}}/Dockerfile" "{{dir}}"
 
-# Verify expected agents image tools are present.
+# Verify tools and development workflows as the default agent user.
 smoke:
-    docker run --rm "{{image}}:{{tag}}" bash -lc 'set -euo pipefail; for c in opencode node npm go rustc cargo git gh curl jq rg fd python3; do command -v "$c" >/dev/null || { echo "missing $c"; exit 1; }; done; opencode --version; node --version; go version; rustc --version; cargo --version'
+    docker run --rm -i "{{image}}:{{tag}}" bash -s < "{{dir}}/smoke.sh"
 
 # Build the agents multi-platform OCI image archive for amd64 and arm64.
 build:
