@@ -9,7 +9,8 @@ FROM rust-toolchain AS just-builder
 ARG JUST_VERSION=1.58.0
 RUN cargo install --locked --version "${JUST_VERSION}" --root /opt/just just
 
-FROM debian:bookworm-slim
+# Supplied by the debug target in docker-bake.hcl.
+FROM debug-base
 
 ARG AGENT_UID=1000
 ARG AGENT_GID=1000
@@ -42,47 +43,15 @@ COPY --from=just-builder /opt/just/bin/just /usr/local/bin/just
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        bash \
         build-essential \
-        ca-certificates \
-        curl \
-        dnsutils \
-        fd-find \
-        file \
-        gh \
-        git \
-        git-lfs \
-        gzip \
-        iproute2 \
-        iputils-ping \
-        jq \
-        less \
         libssl-dev \
         libstdc++6 \
-        make \
-        netcat-openbsd \
-        openssh-client \
         pkg-config \
-        procps \
-        python3 \
         python3-dev \
         python3-venv \
-        python-is-python3 \
-        rclone \
-        ripgrep \
-        rsync \
-        sqlite3 \
-        tar \
-        tree \
-        unzip \
-        wget \
-        xz-utils \
-        zip \
-        zstd \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
     && ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack \
-    && ln -sf /usr/bin/fdfind /usr/local/bin/fd \
     && npm install -g --prefix /usr/local opencode-ai@latest @deepseek-ai/dsh@latest \
     && corepack enable \
     && npm cache clean --force \
@@ -95,8 +64,7 @@ RUN ln -sf /usr/local/go/bin/go /usr/local/bin/go \
     done
 
 RUN mkdir -p /home/agent/.local/bin /home/agent/.cache \
-    && chown -R agent:agent /home/agent \
-    && git lfs install --system
+    && chown -R agent:agent /home/agent
 
 COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 

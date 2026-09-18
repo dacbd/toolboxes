@@ -14,7 +14,7 @@ default:
 
 # Build the agents image for the current host architecture.
 build-local:
-    docker build -t "{{image}}:{{tag}}" -f "{{dir}}/Dockerfile" "{{dir}}"
+    cd "{{dir}}/.." && docker buildx bake agents --set "agents.tags={{image}}:{{tag}}" --load
 
 # Verify tools and development workflows as the default agent user.
 smoke:
@@ -28,20 +28,20 @@ scan target=(image + ":" + tag):
 # Build the agents multi-platform OCI image archive for amd64 and arm64.
 build:
     mkdir -p "$(dirname "{{oci_archive}}")"
-    docker buildx build --platform "{{platforms}}" -t "{{image}}:{{tag}}" -f "{{dir}}/Dockerfile" --provenance=false --output "type=oci,dest={{oci_archive}}" "{{dir}}"
+    cd "{{dir}}/.." && docker buildx bake agents --set "*.platforms={{platforms}}" --set "agents.tags={{image}}:{{tag}}" --provenance=false --set "agents.output=type=oci,dest={{oci_archive}}"
 
 # Validate the agents Dockerfile and GHCR image reference without pushing.
 check:
-    docker buildx build --check --platform "{{platforms}}" -t "{{ghcr_image}}:{{push_tag}}" -f "{{dir}}/Dockerfile" "{{dir}}"
+    cd "{{dir}}/.." && docker buildx bake agents --check --set "*.platforms={{platforms}}" --set "agents.tags={{ghcr_image}}:{{push_tag}}"
 
 # Push the agents multi-platform image to GHCR for this repository.
 push:
-    docker buildx build --platform "{{platforms}}" -t "{{ghcr_image}}:{{push_tag}}" -f "{{dir}}/Dockerfile" --provenance=false --push "{{dir}}"
+    cd "{{dir}}/.." && docker buildx bake agents --set "*.platforms={{platforms}}" --set "agents.tags={{ghcr_image}}:{{push_tag}}" --provenance=false --push
 
 # Build and load a single-platform amd64 agents image into the local Docker image store.
 build-amd64:
-    docker buildx build --platform linux/amd64 -t "{{image}}:{{tag}}-amd64" -f "{{dir}}/Dockerfile" --provenance=false --load "{{dir}}"
+    cd "{{dir}}/.." && docker buildx bake agents --set "*.platforms=linux/amd64" --set "agents.tags={{image}}:{{tag}}-amd64" --provenance=false --load
 
 # Build and load a single-platform arm64 agents image into the local Docker image store.
 build-arm64:
-    docker buildx build --platform linux/arm64 -t "{{image}}:{{tag}}-arm64" -f "{{dir}}/Dockerfile" --provenance=false --load "{{dir}}"
+    cd "{{dir}}/.." && docker buildx bake agents --set "*.platforms=linux/arm64" --set "agents.tags={{image}}:{{tag}}-arm64" --provenance=false --load

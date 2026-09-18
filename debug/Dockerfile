@@ -14,19 +14,41 @@ ARG TARGETARCH
 # system tools
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        bash \
         ca-certificates \
         curl \
         dnsutils \
+        fd-find \
+        file \
         gh \
+        git \
+        git-lfs \
+        gzip \
         iproute2 \
         iputils-ping \
         jq \
+        less \
         netcat-openbsd \
+        openssh-client \
         openssl \
         procps \
+        python3 \
+        python-is-python3 \
+        rclone \
         ripgrep \
+        rsync \
+        sqlite3 \
+        tar \
         tcpdump \
         traceroute \
+        tree \
+        unzip \
+        wget \
+        xz-utils \
+        zip \
+        zstd \
+    && ln -sf /usr/bin/fdfind /usr/local/bin/fd \
+    && git lfs install --system \
     && rm -rf /var/lib/apt/lists/*
 
 # install argocd cli

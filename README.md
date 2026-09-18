@@ -2,8 +2,15 @@
 
 Small container images for debugging and remote development.
 
-- `debug`: Debian-based Kubernetes/debug pod image with tools like `argocd`, `curl`, `gh`, `jq`, DNS tools, `iproute2`, `ping`, `netcat`, `tcpdump`, and `traceroute`.
-- `agents`: Debian-based dev container for remote agent harnesses; includes OpenCode, DeepSeek Harness (`dsh`), common CLI tools, Node, Go, and Rust.
+- `debug`: Standalone Debian-based Kubernetes/debug pod image with network diagnostics, Argo CD, Git/Git LFS, SSH, file/search/archive tools, Python, SQLite, rsync, and rclone. Defaults to a root Bash shell in `/work`.
+- `agents`: Dev container built on the debug image for remote agent harnesses; includes OpenCode, DeepSeek Harness (`dsh`), common CLI tools, Node, Go, and Rust.
+
+Agent build recipes use Docker Buildx Bake to build `debug/Dockerfile` from the
+current checkout and use its result as the `debug-base` context for
+`agents/Dockerfile`, for each requested architecture. No pre-published debug
+image is required. Standalone debug build/push recipes remain available.
+Compilers, development headers, Python venv support, language toolchains,
+and agent harnesses are added only in the agents image.
 
 The agents image runs as `agent` (UID/GID `1000`) with home and working
 directory `/home/agent`. This directory and the Rust toolchain directories
@@ -15,7 +22,8 @@ and the `python` alias. Extra tools include `just`, `git-lfs`, `rsync`,
 `rclone`, and `sqlite3`; Git LFS is enabled system-wide.
 
 For host bind mounts, match the host user's IDs at build time with
-`--build-arg AGENT_UID=... --build-arg AGENT_GID=...` and ensure the mounted
+`docker buildx bake agents --set agents.args.AGENT_UID=...
+--set agents.args.AGENT_GID=... --set agents.tags=agents:local --load` (from the repository root) and ensure the mounted
 workspace is writable by those IDs. Mounting a directory replaces its image
 ownership; the container does not automatically change host file ownership.
 Rust caches and toolchains live at `/usr/local/cargo` and `/usr/local/rustup`.
