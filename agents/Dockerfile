@@ -83,7 +83,7 @@ RUN apt-get update \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
     && ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack \
     && ln -sf /usr/bin/fdfind /usr/local/bin/fd \
-    && npm install -g --prefix /usr/local opencode-ai@latest \
+    && npm install -g --prefix /usr/local opencode-ai@latest @deepseek-ai/dsh@latest \
     && corepack enable \
     && npm cache clean --force \
     && rm -rf /var/lib/apt/lists/*
@@ -94,13 +94,16 @@ RUN ln -sf /usr/local/go/bin/go /usr/local/bin/go \
         ln -sf "/usr/local/cargo/bin/${tool}" "/usr/local/bin/${tool}"; \
     done
 
-RUN mkdir -p /workspace /home/agent/.local/bin /home/agent/.cache \
-    && chown -R agent:agent /workspace /home/agent \
+RUN mkdir -p /home/agent/.local/bin /home/agent/.cache \
+    && chown -R agent:agent /home/agent \
     && git lfs install --system
 
+COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
+
 USER agent
-WORKDIR /workspace
+WORKDIR /home/agent
 
-EXPOSE 4096
+EXPOSE 3080 4096
 
-CMD ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["opencode"]

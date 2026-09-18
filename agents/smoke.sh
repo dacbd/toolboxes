@@ -4,13 +4,15 @@ set -euo pipefail
 test "$(id -un)" = agent
 test "$(id -u)" -ne 0
 test "$HOME" = /home/agent
-for dir in "$HOME" /workspace "$CARGO_HOME" "$RUSTUP_HOME"; do
+for dir in "$HOME" "$CARGO_HOME" "$RUSTUP_HOME"; do
     test -w "$dir"
 done
-for tool in opencode node npm npx corepack go rustc cargo git git-lfs gh curl jq rg fd python python3 uv uvx just rsync rclone sqlite3; do
+for tool in opencode dsh node npm npx corepack go rustc cargo git git-lfs gh curl jq rg fd python python3 uv uvx just rsync rclone sqlite3; do
     command -v "$tool" >/dev/null || { echo "missing $tool"; exit 1; }
 done
 opencode --version
+dsh --version
+dsh web --help
 node --version
 npm --version
 go version
@@ -23,7 +25,7 @@ rclone version
 rsync --version
 test "$(sqlite3 :memory: 'select 1;')" = 1
 
-scratch=$(mktemp -d /workspace/smoke.XXXXXX)
+scratch=$(mktemp -d "$HOME/smoke.XXXXXX")
 trap 'rm -rf "$scratch"' EXIT
 cd "$scratch"
 

@@ -7,6 +7,7 @@ platforms := env_var_or_default("PLATFORMS", "linux/amd64,linux/arm64")
 oci_archive := env_var_or_default("AGENTS_OCI_ARCHIVE", dir + "/../dist/agents.tar")
 ghcr_image := env_var_or_default("AGENTS_GHCR_IMAGE", "ghcr.io/dacbd/toolboxes/agents")
 push_tag := env_var_or_default("AGENTS_PUSH_TAG", "latest")
+scan_severity := env_var_or_default("SCAN_SEVERITY", "HIGH,CRITICAL")
 
 default:
     @just --justfile "{{dir}}/justfile" --list
@@ -18,6 +19,11 @@ build-local:
 # Verify tools and development workflows as the default agent user.
 smoke:
     docker run --rm -i "{{image}}:{{tag}}" bash -s < "{{dir}}/smoke.sh"
+
+# Scan an existing local or registry image; fail on matching vulnerabilities or secrets.
+scan target=(image + ":" + tag):
+    @command -v trivy >/dev/null || { echo "Trivy is required; run just setup from the repository root." >&2; exit 1; }
+    trivy image --scanners vuln,secret --severity "{{scan_severity}}" --exit-code 1 "{{target}}"
 
 # Build the agents multi-platform OCI image archive for amd64 and arm64.
 build:
