@@ -8,6 +8,7 @@ oci_archive := env_var_or_default("AGENTS_OCI_ARCHIVE", dir + "/../dist/agents.t
 ghcr_image := env_var_or_default("AGENTS_GHCR_IMAGE", "ghcr.io/dacbd/toolboxes/agents")
 push_tag := env_var_or_default("AGENTS_PUSH_TAG", "latest")
 scan_severity := env_var_or_default("SCAN_SEVERITY", "HIGH,CRITICAL")
+scan_table_mode := env_var_or_default("SCAN_TABLE_MODE", "summary")
 
 default:
     @just --justfile "{{dir}}/justfile" --list
@@ -23,7 +24,7 @@ smoke:
 # Scan an existing local or registry image; fail on matching vulnerabilities or secrets.
 scan target=(image + ":" + tag):
     @command -v trivy >/dev/null || { echo "Trivy is required; run just setup from the repository root." >&2; exit 1; }
-    trivy image --scanners vuln,secret --severity "{{scan_severity}}" --exit-code 1 "{{target}}"
+    trivy image --quiet --format table --table-mode "{{scan_table_mode}}" --scanners vuln,secret --severity "{{scan_severity}}" --exit-code 1 "{{target}}"
 
 # Build the agents multi-platform OCI image archive for amd64 and arm64.
 build:

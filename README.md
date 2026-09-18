@@ -70,10 +70,11 @@ produce an error with a link to manual installation instructions. Run `just agen
 ```sh
 just agents scan ghcr.io/dacbd/toolboxes/agents:latest
 SCAN_SEVERITY=UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL just agents scan
+SCAN_TABLE_MODE=summary,detailed just agents scan # include individual findings
 ```
 
 The scan checks OS/application vulnerabilities and embedded secrets, prints
-the report, and exits nonzero for findings at the selected severities
+a compact summary without progress bars or informational logs, and exits nonzero for findings at the selected severities
 (`HIGH,CRITICAL` by default), including vulnerabilities without a fix.
 Trivy needs registry/database access on the first scan. Scanning is an
 explicit recipe for local builds and pushes. CI runs `just setup`, builds and
