@@ -28,20 +28,20 @@ scan target=(image + ":" + tag):
 # Build the agents multi-platform OCI image archive for amd64 and arm64.
 build:
     mkdir -p "$(dirname "{{oci_archive}}")"
-    cd "{{dir}}/.." && docker buildx bake agents --set "*.platforms={{platforms}}" --set "agents.tags={{image}}:{{tag}}" --provenance=false --set "agents.output=type=oci,dest={{oci_archive}}"
+    cd "{{dir}}/.." && docker buildx bake agents --set "*.platform={{platforms}}" --set "agents.tags={{image}}:{{tag}}" --provenance=false --set "agents.output=type=oci,dest={{oci_archive}}"
 
 # Validate the agents Dockerfile and GHCR image reference without pushing.
 check:
-    cd "{{dir}}/.." && docker buildx bake agents --check --set "*.platforms={{platforms}}" --set "agents.tags={{ghcr_image}}:{{push_tag}}"
+    cd "{{dir}}/.." && docker buildx bake agents --check --set "*.platform={{platforms}}" --set "agents.tags={{ghcr_image}}:{{push_tag}}"
 
 # Push the agents multi-platform image to GHCR for this repository.
 push:
-    cd "{{dir}}/.." && docker buildx bake agents --set "*.platforms={{platforms}}" --set "agents.tags={{ghcr_image}}:{{push_tag}}" --provenance=false --push
+    cd "{{dir}}/.." && docker buildx bake agents --set "*.platform={{platforms}}" --set "agents.tags={{ghcr_image}}:{{push_tag}}" --provenance=false --push
 
 # Build and load a single-platform amd64 agents image into the local Docker image store.
 build-amd64:
-    cd "{{dir}}/.." && docker buildx bake agents --set "*.platforms=linux/amd64" --set "agents.tags={{image}}:{{tag}}-amd64" --provenance=false --load
+    cd "{{dir}}/.." && docker buildx bake agents --set "*.platform=linux/amd64" --set "agents.tags={{image}}:{{tag}}-amd64" --provenance=false --load
 
 # Build and load a single-platform arm64 agents image into the local Docker image store.
 build-arm64:
-    cd "{{dir}}/.." && docker buildx bake agents --set "*.platforms=linux/arm64" --set "agents.tags={{image}}:{{tag}}-arm64" --provenance=false --load
+    cd "{{dir}}/.." && docker buildx bake agents --set "*.platform=linux/arm64" --set "agents.tags={{image}}:{{tag}}-arm64" --provenance=false --load
