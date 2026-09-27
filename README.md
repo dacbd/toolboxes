@@ -18,7 +18,8 @@ are writable by this user. Global npm installs and uv tools go
 under `~/.local`, whose `bin` directory is on `PATH`.
 
 Python includes `uv`/`uvx`, virtual environment support, development headers,
-and the `python` alias. The agents image also includes the Buf CLI for building
+and the `python` alias. The image pins uv and verifies the official release
+archive checksum for each architecture. The agents image also includes the Buf CLI for building
 and managing Protocol Buffer schemas. Extra tools include `just`, `git-lfs`, `rsync`,
 `rclone`, and `sqlite3`; Git LFS is enabled system-wide.
 

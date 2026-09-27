@@ -3,7 +3,27 @@
 FROM node:22-bookworm-slim AS node-toolchain
 FROM golang:1-bookworm AS go-toolchain
 FROM rust:1-bookworm AS rust-toolchain
-FROM ghcr.io/astral-sh/uv:0.12.13 AS uv-toolchain
+
+FROM debian:bookworm-slim AS uv-toolchain
+ARG UV_VERSION=0.12.13
+ARG TARGETARCH
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl tar \
+    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+        amd64) uv_arch=x86_64; uv_sha256=745765a3b6e360ad76743599ae5c42e9278c7edf8bbff9fc76d05bf2623a04dd ;; \
+        arm64) uv_arch=aarch64; uv_sha256=2eaa5d94f5db7b3a1a092156b9420459e42ab0217d917fe74a876309cef9b5e9 ;; \
+        *) echo "unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    uv_archive="uv-${uv_arch}-unknown-linux-gnu.tar.gz"; \
+    curl -fsSL "https://releases.astral.sh/github/uv/releases/download/${UV_VERSION}/${uv_archive}" -o "/tmp/${uv_archive}"; \
+    echo "${uv_sha256}  /tmp/${uv_archive}" | sha256sum -c -; \
+    mkdir -p /out; \
+    tar -xzf "/tmp/${uv_archive}" -C /tmp; \
+    install -m 755 "/tmp/uv-${uv_arch}-unknown-linux-gnu/uv" /out/uv; \
+    install -m 755 "/tmp/uv-${uv_arch}-unknown-linux-gnu/uvx" /out/uvx; \
+    rm -rf "/tmp/${uv_archive}" "/tmp/uv-${uv_arch}-unknown-linux-gnu"
 
 FROM rust-toolchain AS just-builder
 ARG JUST_VERSION=1.58.0
@@ -50,7 +70,7 @@ COPY --from=node-toolchain /usr/local/lib/node_modules /usr/local/lib/node_modul
 COPY --from=go-toolchain /usr/local/go /usr/local/go
 COPY --from=rust-toolchain --chown=agent:agent /usr/local/cargo /usr/local/cargo
 COPY --from=rust-toolchain --chown=agent:agent /usr/local/rustup /usr/local/rustup
-COPY --from=uv-toolchain /uv /uvx /usr/local/bin/
+COPY --from=uv-toolchain /out/uv /out/uvx /usr/local/bin/
 COPY --from=just-builder /opt/just/bin/just /usr/local/bin/just
 COPY --from=buf-tool /usr/local/bin/buf /usr/local/bin/buf
 
