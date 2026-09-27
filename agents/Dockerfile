@@ -29,7 +29,8 @@ FROM rust-toolchain AS just-builder
 ARG JUST_VERSION=1.58.0
 RUN cargo install --locked --version "${JUST_VERSION}" --root /opt/just just
 
-FROM debian:bookworm-slim AS buf-tool
+# Use the debug base, which already provides curl and CA certificates.
+FROM debug-base AS buf-tool
 ARG BUF_VERSION=1.73.0
 ARG TARGETARCH
 RUN set -eux; \
