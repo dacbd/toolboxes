@@ -4,7 +4,7 @@ FROM node:22-bookworm-slim AS node-toolchain
 FROM golang:1-bookworm AS go-toolchain
 FROM rust:1-bookworm AS rust-toolchain
 
-FROM debian:bookworm-slim AS uv-toolchain
+FROM debian:trixie-slim AS uv-toolchain
 ARG UV_VERSION=0.12.13
 ARG TARGETARCH
 RUN apt-get update \

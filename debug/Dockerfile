@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 LABEL org.opencontainers.image.title="debug" \
       org.opencontainers.image.description="Debian-based image with common cluster debug tools" \
