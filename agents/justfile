@@ -8,7 +8,7 @@ oci_archive := env_var_or_default("AGENTS_OCI_ARCHIVE", dir + "/../dist/agents.t
 ghcr_image := env_var_or_default("AGENTS_GHCR_IMAGE", "ghcr.io/dacbd/toolboxes/agents")
 push_tag := env_var_or_default("AGENTS_PUSH_TAG", "latest")
 scan_severity := env_var_or_default("SCAN_SEVERITY", "HIGH,CRITICAL")
-scan_table_mode := env_var_or_default("SCAN_TABLE_MODE", "summary")
+scan_table_mode := env_var_or_default("SCAN_TABLE_MODE", "detailed")
 
 default:
     @just --justfile "{{dir}}/justfile" --list
