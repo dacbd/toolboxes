@@ -9,6 +9,18 @@ FROM rust-toolchain AS just-builder
 ARG JUST_VERSION=1.58.0
 RUN cargo install --locked --version "${JUST_VERSION}" --root /opt/just just
 
+FROM debian:bookworm-slim AS buf-tool
+ARG BUF_VERSION=1.73.0
+ARG TARGETARCH
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+        amd64) buf_arch=x86_64 ;; \
+        arm64) buf_arch=aarch64 ;; \
+        *) echo "unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-Linux-${buf_arch}" -o /usr/local/bin/buf; \
+    chmod 755 /usr/local/bin/buf
+
 # Supplied by the debug target in docker-bake.hcl.
 FROM debug-base
 
@@ -40,6 +52,7 @@ COPY --from=rust-toolchain --chown=agent:agent /usr/local/cargo /usr/local/cargo
 COPY --from=rust-toolchain --chown=agent:agent /usr/local/rustup /usr/local/rustup
 COPY --from=uv-toolchain /uv /uvx /usr/local/bin/
 COPY --from=just-builder /opt/just/bin/just /usr/local/bin/just
+COPY --from=buf-tool /usr/local/bin/buf /usr/local/bin/buf
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
