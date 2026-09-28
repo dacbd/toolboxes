@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 FROM node:22-bookworm-slim AS node-toolchain
-FROM golang:1-bookworm AS go-toolchain
+FROM golang:1.26.6-bookworm AS go-toolchain
 FROM rust:1-bookworm AS rust-toolchain
 
 FROM debian:trixie-slim AS uv-toolchain
@@ -86,7 +86,9 @@ RUN apt-get update \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
     && ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack \
+    && npm install -g npm@latest \
     && npm install -g --prefix /usr/local opencode-ai@latest @deepseek-ai/dsh@latest \
+    && npm update -g --prefix /usr/local \
     && corepack enable \
     && npm cache clean --force \
     && rm -rf /var/lib/apt/lists/*
