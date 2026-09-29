@@ -111,3 +111,36 @@ CVE-2026-16742
 # This advisory applies to the OpenSSH server (sshd), which is not in openssh-client.
 CVE-2026-59999
 CVE-2026-60000
+
+# This libxml2 advisory affects its Python bindings; the image does not install
+# python3-libxml2 or lxml, so only the unrelated libxml2 C library is present.
+CVE-2026-74860
+
+# This libxml2 issue is a denial of service in XML internal-subset parsing.
+# Debian classifies it as minor for Trixie; no included service parses untrusted
+# XML automatically. Keep the other libxml2 memory-safety findings visible.
+CVE-2026-6653
+
+# This ncurses issue is limited to the infocmp command-line utility processing
+# untrusted terminfo. The agent image has no service that invokes infocmp, and
+# Debian classifies it as a minor issue for Trixie. Reassess if that changes.
+CVE-2025-69720
+
+# Archive::Tar can exhaust memory on a crafted tar header, but only when Perl
+# code explicitly parses that input. No image service or startup tool does so;
+# Debian has postponed the fix while upstream regressions are resolved.
+CVE-2026-9538
+
+# This libacl flaw requires a privileged process to perform ACL operations on
+# an attacker-controlled symlink path. The agents image runs as the unprivileged
+# agent user and has no privileged ACL service.
+CVE-2026-54369
+
+# These Go findings affect server-only code paths: SSH server authentication
+# callbacks, gRPC xDS server creation, and inbound gRPC HTTP/2 handling. This
+# image includes the Argo CD CLI (not argocd-server) and rclone, whose optional
+# remote-control endpoint is HTTP; neither starts an SSH or gRPC server.
+CVE-2026-56854
+CVE-2026-84304
+CVE-2026-84445
+GHSA-hrxh-6v49-42gf
