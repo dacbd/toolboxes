@@ -73,6 +73,5 @@ The scan checks OS/application vulnerabilities and embedded secrets, prints
 a compact summary without progress bars or informational logs, and exits nonzero for findings at the selected severities
 (`HIGH,CRITICAL` by default), including vulnerabilities without a fix.
 Trivy needs registry/database access on the first scan. Scanning is an
-explicit recipe for local builds and pushes. CI runs `just setup`, builds and
-scans both amd64 and arm64 agent images, and blocks the publishing steps if
-either scan fails.
+optional manual recipe. CI builds and pushes the multi-platform debug and
+agents images without installing Trivy or running scans.
