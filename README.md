@@ -3,7 +3,7 @@
 Small container images for debugging and remote development.
 
 - `debug`: Standalone Debian-based Kubernetes/debug pod image with network diagnostics, Argo CD, Git/Git LFS, SSH, file/search/archive tools, Python, SQLite, rsync, and rclone. Defaults to a root Bash shell in `/work`.
-- `agents`: Dev container built on the debug image for remote agent harnesses; includes OpenCode, DeepSeek Harness (`dsh`), common CLI tools, Node, Go, and Rust.
+- `agents`: Dev container built on the debug image for remote agent harnesses; includes OpenCode 2 (`opencode2`), common CLI tools, Node, Go, and Rust.
 
 Agent build recipes use Docker Buildx Bake to build `debug/Dockerfile` from the
 current checkout and use its result as the `debug-base` context for
@@ -30,24 +30,18 @@ workspace is writable by those IDs. Mounting a directory replaces its image
 ownership; the container does not automatically change host file ownership.
 Rust caches and toolchains live at `/usr/local/cargo` and `/usr/local/rustup`.
 
-The entrypoint defaults to `opencode`, which runs
-`opencode serve --hostname 0.0.0.0 --port 4096`. Select `dsh` to run
-`dsh web --no-open` instead. Arguments after the selector are forwarded to
-the selected server; other commands are executed directly.
+The image installs the OpenCode 2 beta via `@opencode-ai/cli@beta`.
+The entrypoint defaults to `opencode2`, which runs
+`opencode2 serve --hostname 0.0.0.0 --port 4096`. Arguments after the selector
+are forwarded to the server; other commands are executed directly.
 
 ```sh
-docker run --rm -p 127.0.0.1:4096:4096 agents:local opencode
-docker run --rm agents:local dsh
+docker run --rm -p 127.0.0.1:4096:4096 agents:local opencode2
 docker run --rm -it agents:local bash
 ```
 
-DeepSeek's Web UI defaults to container loopback on port 3080 and rejects
-`--host 0.0.0.0`. Publishing port 3080 alone does not make it reachable;
-use a tunnel or proxy that can reach the container's loopback interface.
-See the [DeepSeek CLI reference](https://github.com/deepseek-ai/deepseek-harness/blob/master/apps/cli/reference/README.md#web-profile)
-for host and trusted-host options. To invoke either CLI without the server
-shortcut, override the entrypoint, for example
-`docker run --rm --entrypoint dsh agents:local --version`.
+To invoke the CLI without the server shortcut, override the entrypoint, for example
+`docker run --rm --entrypoint opencode2 agents:local --version`.
 
 Build commands:
 

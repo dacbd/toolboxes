@@ -2,17 +2,13 @@
 set -eu
 
 if [ "$#" -eq 0 ]; then
-    set -- opencode
+    set -- opencode2
 fi
 
 case "$1" in
-    dsh)
+    opencode2)
         shift
-        exec dsh web --no-open "$@"
-        ;;
-    opencode)
-        shift
-        exec opencode serve --hostname 0.0.0.0 --port 4096 "$@"
+        exec opencode2 serve --hostname 0.0.0.0 --port 4096 "$@"
         ;;
     *)
         exec "$@"

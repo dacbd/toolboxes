@@ -87,8 +87,7 @@ RUN apt-get update \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
     && ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack \
     && npm install -g npm@latest \
-    && npm install -g --prefix /usr/local opencode-ai@latest @deepseek-ai/dsh@latest \
-    && npm update -g --prefix /usr/local \
+    && npm install -g --prefix /usr/local @opencode-ai/cli@beta \
     && corepack enable \
     && npm cache clean --force \
     && rm -rf /var/lib/apt/lists/*
@@ -107,7 +106,7 @@ COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 USER agent
 WORKDIR /home/agent
 
-EXPOSE 3080 4096
+EXPOSE 4096
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["opencode"]
+CMD ["opencode2"]
