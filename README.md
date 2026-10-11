@@ -3,7 +3,7 @@
 Small container images for debugging and remote development.
 
 - `debug`: Standalone Debian-based Kubernetes/debug pod image with network diagnostics, Argo CD, kubectl, Git/Git LFS, SSH, file/search/archive tools, Python, SQLite, rsync, and rclone. Defaults to a root Bash shell in `/work`.
-- `agents`: Dev container built on the debug image for remote agent harnesses; includes OpenCode 2 (`opencode2`), common CLI tools, Node, Go, and Rust.
+- `agents`: Dev container built on the debug image for remote agent harnesses; includes OpenCode 2 (`opencode2`), Codex CLI (`codex`), Claude Code (`claude`), common CLI tools, Node, Go, and Rust.
 
 Agent build recipes use Docker Buildx Bake to build `debug/Dockerfile` from the
 current checkout and use its result as the `debug-base` context for
@@ -32,7 +32,8 @@ workspace is writable by those IDs. Mounting a directory replaces its image
 ownership; the container does not automatically change host file ownership.
 Rust caches and toolchains live at `/usr/local/cargo` and `/usr/local/rustup`.
 
-The image installs the OpenCode 2 beta via `@opencode-ai/cli@beta`.
+The image installs the OpenCode 2 beta via `@opencode-ai/cli@beta`, plus the
+Codex CLI via `@openai/codex` and Claude Code via `@anthropic-ai/claude-code`.
 The entrypoint defaults to `opencode2`, which runs
 `opencode2 serve --hostname 0.0.0.0 --port 4096`. Arguments after the selector
 are forwarded to the server; other commands are executed directly.
