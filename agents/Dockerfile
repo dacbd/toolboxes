@@ -116,7 +116,7 @@ RUN apt-get update \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
     && ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack \
     && npm install -g npm@latest \
-    && npm install -g --prefix /usr/local @opencode-ai/cli@beta \
+    && npm install -g --prefix /usr/local @opencode-ai/cli@beta @openai/codex @anthropic-ai/claude-code \
     && corepack enable \
     && npm cache clean --force \
     && rm -rf /var/lib/apt/lists/*
