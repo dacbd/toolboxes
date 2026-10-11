@@ -42,6 +42,33 @@ RUN set -eux; \
     curl -fsSL "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-Linux-${buf_arch}" -o /usr/local/bin/buf; \
     chmod 755 /usr/local/bin/buf
 
+FROM debug-base AS fj-tool
+ARG FJ_VERSION=0.6.0
+ARG TARGETARCH
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+        amd64) fj_arch=x86_64 ;; \
+        arm64) fj_arch=aarch64 ;; \
+        *) echo "unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL "https://codeberg.org/forgejo-contrib/forgejo-cli/releases/download/v${FJ_VERSION}/forgejo-cli-${fj_arch}-linux.tar.gz" -o /tmp/fj.tar.gz; \
+    tar -xzf /tmp/fj.tar.gz -C /usr/local/bin; \
+    chmod 755 /usr/local/bin/fj; \
+    rm -f /tmp/fj.tar.gz
+
+FROM debug-base AS tea-tool
+ARG TEA_VERSION=0.16.0
+ARG TARGETARCH
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+        amd64) tea_sha256=9c142c8a0b31485eea2387031c1c404f12b7141075eb4ffbd7ced49441590636 ;; \
+        arm64) tea_sha256=0e14a036322eeb1fc55e266acafeb8490e523ed99f9232034ae74861e2339879 ;; \
+        *) echo "unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL "https://gitea.com/gitea/tea/releases/download/v${TEA_VERSION}/tea-${TEA_VERSION}-linux-${TARGETARCH}" -o /usr/local/bin/tea; \
+    echo "${tea_sha256}  /usr/local/bin/tea" | sha256sum -c -; \
+    chmod 755 /usr/local/bin/tea
+
 # Supplied by the debug target in docker-bake.hcl.
 FROM debug-base
 
@@ -74,6 +101,8 @@ COPY --from=rust-toolchain --chown=agent:agent /usr/local/rustup /usr/local/rust
 COPY --from=uv-toolchain /out/uv /out/uvx /usr/local/bin/
 COPY --from=just-builder /opt/just/bin/just /usr/local/bin/just
 COPY --from=buf-tool /usr/local/bin/buf /usr/local/bin/buf
+COPY --from=fj-tool /usr/local/bin/fj /usr/local/bin/fj
+COPY --from=tea-tool /usr/local/bin/tea /usr/local/bin/tea
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
