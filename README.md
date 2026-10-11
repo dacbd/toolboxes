@@ -2,7 +2,7 @@
 
 Small container images for debugging and remote development.
 
-- `debug`: Standalone Debian-based Kubernetes/debug pod image with network diagnostics, Argo CD, Git/Git LFS, SSH, file/search/archive tools, Python, SQLite, rsync, and rclone. Defaults to a root Bash shell in `/work`.
+- `debug`: Standalone Debian-based Kubernetes/debug pod image with network diagnostics, Argo CD, kubectl, Git/Git LFS, SSH, file/search/archive tools, Python, SQLite, rsync, and rclone. Defaults to a root Bash shell in `/work`.
 - `agents`: Dev container built on the debug image for remote agent harnesses; includes OpenCode 2 (`opencode2`), common CLI tools, Node, Go, and Rust.
 
 Agent build recipes use Docker Buildx Bake to build `debug/Dockerfile` from the

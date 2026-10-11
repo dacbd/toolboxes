@@ -53,6 +53,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ARG ARGOCD_VERSION=v3.5.3
 ARG GH_VERSION=2.101.0
+ARG KUBECTL_VERSION=v1.37.1
 ARG TARGETARCH
 
 # Finish the download/compiler tool stages before the memory-intensive package
@@ -130,6 +131,19 @@ RUN set -eux; \
     sha256sum -c "argocd-linux-${arch}.sha256"; \
     install -m 555 "argocd-linux-${arch}" /usr/local/bin/argocd; \
     rm "argocd-linux-${arch}" "argocd-linux-${arch}.sha256" cli_checksums.txt
+
+# install kubectl from the official Kubernetes release with its published checksum.
+RUN set -eux; \
+    arch="${TARGETARCH:-$(dpkg --print-architecture)}"; \
+    case "${arch}" in \
+        amd64|arm64) ;; \
+        *) echo "unsupported architecture: ${arch}" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${arch}/kubectl"; \
+    curl -fsSLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${arch}/kubectl.sha256"; \
+    echo "$(cat kubectl.sha256)  kubectl" | sha256sum -c -; \
+    install -m 755 kubectl /usr/local/bin/kubectl; \
+    rm kubectl kubectl.sha256
 
 WORKDIR /work
 
