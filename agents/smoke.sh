@@ -7,7 +7,7 @@ test "$HOME" = /home/agent
 for dir in "$HOME" "$CARGO_HOME" "$RUSTUP_HOME"; do
     test -w "$dir"
 done
-for tool in opencode2 node npm npx corepack go rustc cargo buf git git-lfs gh kubectl curl jq rg fd python python3 uv uvx just rsync rclone sqlite3; do
+for tool in opencode2 node npm npx corepack go rustc cargo buf git git-lfs gh kubectl curl jq rg fd python python3 uv uvx just fj tea rsync rclone sqlite3; do
     command -v "$tool" >/dev/null || { echo "missing $tool"; exit 1; }
 done
 opencode2 --version
@@ -21,6 +21,8 @@ uv --version
 just --version
 buf --version
 git lfs version
+fj version
+tea --version
 rclone version
 rsync --version
 test "$(sqlite3 :memory: 'select 1;')" = 1
